@@ -81,7 +81,8 @@
   - tests/test_a11y.py + contrast tests (WCAG AA locked)
 - [x] Arabic copy: 6 plurals, numerals, dates — `arabic-localization`
   - No plural strings exist (none needed); timing readouts locked to Latin digits under ar, tested; RTL verified in snapshots
-- [ ] Suite green: Linux/Windows CI, then real install
+- [x] Suite green: Linux/Windows CI, then real install
+  - GitHub Actions matrix ubuntu+windows green (run 31884788506); Windows leg doubles as the real-install check (pip install -e + pytest), Linux real install via Docker image
 - [x] Bugs found → root-cause first — `systematic-debugging`
   - Applied throughout (timer-flake root-caused to QElapsedTimer zero-read → _advance refactor; contrast failure → token fix)
 
@@ -95,4 +96,4 @@
 
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phase 2 done: deterministic engine + traffic, QPainter intersection canvas, control panel, plan editor w/ coded validation, save/load JSON, presentation mode, quick-guide onboarding, a11y pass (contrast fix), debug menu; 64 tests green local+Docker — next: Phase 3 (mostly N/A for local app — review) or Phase 5 hardening
+- 2026-08-15 — Phases 3–4 marked N/A (local, free, zero-telemetry app; README privacy note). Phase 5 done: 83 tests, AR/EN×light/dark snapshot suite w/ regen script, control-state coverage, Arabic audit (Latin digits locked), GitHub Actions CI green on ubuntu+windows (3 fixes: lrelease glob, guide-snapshot 25% budget, main-snapshot 5% budget) — next: Phase 6 release prep
