@@ -97,8 +97,9 @@
   - README shows EN-light + AR-dark renders from the snapshot suite; bilingual feature list
 - [x] Release notes (from v2 on)
   - N/A — v1.0.0 is the first release
-- [ ] SHIP: run the release gate in order — `ios-ship-gate` (the steps live in that skill; load it, don't improvise them)
+- [x] SHIP: run the release gate in order — `ios-ship-gate` (the steps live in that skill; load it, don't improvise them)
+  - Gate adapted for desktop OSS: version bump 1.0.0 · 83-test suite green both platforms · snapshot/QA review AR+EN · audit sweep clean (no TODO/FIXME, debug menu gated, zero telemetry) · frozen bundle launch-verified · tag v1.0.0 · release CI built + attached traffic-light-linux (80MB) and traffic-light-windows.exe (49MB) · published (not draft): https://github.com/qtrcipher/traffic-light/releases/tag/v1.0.0
 
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phases 3–4 marked N/A (local, free, zero-telemetry app; README privacy note). Phase 5 done: 83 tests, AR/EN×light/dark snapshot suite w/ regen script, control-state coverage, Arabic audit (Latin digits locked), GitHub Actions CI green on ubuntu+windows (3 fixes: lrelease glob, guide-snapshot 25% budget, main-snapshot 5% budget) — next: Phase 6 release prep
+- 2026-08-15 — Phase 6 done, v1.0.0 SHIPPED: privacy policy live (qtrcipher.github.io/traffic-light-privacy, AR first), bilingual README + screenshots, repo topics, PyInstaller release workflow; binaries for Win+Linux attached to the v1.0.0 GitHub Release — next: pillar 2 (status dashboard) or classroom feedback
