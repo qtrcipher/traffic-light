@@ -114,4 +114,4 @@
 
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phase 7 done: pillar 2 status dashboard (StateBridge on HardwareSink seam, 2×2 big-lamp board, 36px phase/elapsed, live a11y names, AR/RTL + themes); 97 tests incl. 4 dashboard snapshots; Docker image gained fonts-noto-core (container was rendering Arabic as tofu — root-caused via AR dashboard snapshot diffs) — next: pillar 3 (hardware) or v1.1.0 tag
+- 2026-08-15 — Phase 7 done: pillar 2 status dashboard (StateBridge on HardwareSink seam, 2×2 big-lamp board, 36px phase/elapsed, live a11y names, AR/RTL + themes); 97 tests incl. 4 dashboard snapshots; Docker image gained fonts-noto-core (container was rendering Arabic as tofu — root-caused via AR dashboard snapshot diffs); fonts now BUNDLED (Atkinson Hyperlegible + IBM Plex Sans Arabic, OFL) so glyphs render identically on every OS — CI green ubuntu+windows — next: pillar 3 (hardware) or v1.1.0 tag
