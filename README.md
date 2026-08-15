@@ -27,6 +27,12 @@ Status: v1.0.0 candidate — simulator complete; dashboard and hardware pillars 
 Roadmap and session log in [PROGRESS.md](PROGRESS.md); validated design in
 [docs/plans/2026-08-15-traffic-light-design.md](docs/plans/2026-08-15-traffic-light-design.md).
 
+## Install (no Python needed)
+
+Download the latest one-file build for Windows or Linux from
+[Releases](https://github.com/qtrcipher/traffic-light/releases)
+(`traffic-light-windows.exe` / `traffic-light-linux`). No installer — run it.
+
 ## Develop
 
 ```sh

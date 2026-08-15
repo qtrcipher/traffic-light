@@ -1,0 +1,71 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Same Qt runtime libs as the Dockerfile / test.yml (headless Qt).
+      - name: Install Qt runtime libs (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libegl1 libxkbcommon0 libdbus-1-3 libfontconfig1 libglib2.0-0
+
+      - name: Install package
+        run: pip install -e '.[dev]'
+
+      # Explicit filename: Windows shells don't expand globs.
+      - name: Compile translations
+        run: pyside6-lrelease src/traffic_light/i18n/traffic_light_ar.ts
+
+      # Gate: the release only builds if the full suite passes.
+      - name: pytest (Linux, offscreen Qt)
+        if: runner.os == 'Linux'
+        run: pytest -q
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      - name: pytest (Windows)
+        if: runner.os == 'Windows'
+        run: pytest -q
+
+      - name: Build one-file bundle
+        run: pyinstaller traffic_light.spec
+
+      - name: Rename artifact (Linux)
+        if: runner.os == 'Linux'
+        run: mv dist/traffic-light dist/traffic-light-linux
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        run: mv dist/traffic-light.exe dist/traffic-light-windows.exe
+
+      - name: Upload Linux bundle to the release
+        if: runner.os == 'Linux'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/traffic-light-linux
+
+      - name: Upload Windows bundle to the release
+        if: runner.os == 'Windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/traffic-light-windows.exe

@@ -2,20 +2,35 @@
 
 from __future__ import annotations
 
+import os
 import sys
-from importlib import resources
+from pathlib import Path
 
-from PySide6.QtCore import QLocale, QTranslator, Qt
+from PySide6.QtCore import QLocale, QTimer, QTranslator, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
-from .ui import settings as prefs
-from .ui import theme
-from .ui.guide import GuideDialog, should_show_guide
-from .ui.language_dialog import LanguageDialog
-from .ui.main_window import MainWindow
+# Absolute imports (not `from .ui import ...`): PyInstaller runs this file as
+# __main__, where package-relative imports fail. They work identically for
+# `python -m traffic_light.app` and the console script.
+from traffic_light.ui import settings as prefs
+from traffic_light.ui import theme
+from traffic_light.ui.guide import GuideDialog, should_show_guide
+from traffic_light.ui.language_dialog import LanguageDialog
+from traffic_light.ui.main_window import MainWindow
 
 APP_NAME = "Traffic Light"
+
+
+def _resource(*parts: str) -> Path:
+    """Path to bundled package data. Inside a PyInstaller one-file bundle the
+    datas land under sys._MEIPASS/traffic_light; from source they live next to
+    this file."""
+    if getattr(sys, "frozen", False):
+        base = Path(sys._MEIPASS) / "traffic_light"  # noqa: SLF001
+    else:
+        base = Path(__file__).resolve().parent
+    return base.joinpath(*parts)
 
 
 def _load_translator(app: QApplication, language: str) -> QTranslator | None:
@@ -23,13 +38,12 @@ def _load_translator(app: QApplication, language: str) -> QTranslator | None:
     (source strings are English, so EN needs nothing)."""
     if language == "en":
         return None
-    qm = resources.files("traffic_light.i18n") / f"traffic_light_{language}.qm"
+    qm = _resource("i18n", f"traffic_light_{language}.qm")
     if not qm.is_file():
         return None
     translator = QTranslator(app)
-    with resources.as_file(qm) as path:
-        if not translator.load(str(path)):
-            return None
+    if not translator.load(str(qm)):
+        return None
     app.installTranslator(translator)
     return translator  # keep a reference alive
 
@@ -56,11 +70,16 @@ def create_app(argv: list[str]) -> QApplication:
 def main() -> int:
     language_known = prefs.language() is not None
     app = create_app(sys.argv)
-    icon = resources.files("traffic_light") / "assets" / "icon.svg"
-    with resources.as_file(icon) as icon_path:
-        app.setWindowIcon(QIcon(str(icon_path)))
+    app.setWindowIcon(QIcon(str(_resource("assets", "icon.svg"))))
     window = MainWindow()
     window.show()
+
+    # Smoke-test hook: TRAFFIC_LIGHT_SHOT=/path/out.png grabs the window after
+    # 2 s and quits (used to verify frozen builds headlessly).
+    shot = os.environ.get("TRAFFIC_LIGHT_SHOT")
+    if shot:
+        QTimer.singleShot(2000, lambda: (window.grab().save(shot), app.quit()))
+
     if should_show_guide(language_known):
         GuideDialog(window).exec()
     return app.exec()
