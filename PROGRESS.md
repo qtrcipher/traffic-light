@@ -112,6 +112,20 @@
 - [x] Tests + snapshot coverage (incl. AR dark dashboard)
   - 14 new tests (97 total): bridge change-only firing, lamps, a11y names, 4 dashboard snapshots (10% budget for 36px labels)
 
+## Phase 8 — Pillar 3: Hardware controller (Arduino over serial)
+- [x] Line protocol (Qt-free): encode head states → `N:G;S:G;E:R;W:R\n`, decode on the Arduino side
+  - hardware/protocol.py: strict encode/decode, ValueError on malformed
+- [x] SerialSink: HardwareSink implementation over pyserial; connect/disconnect, write on change, error handling
+  - Lazy connect, errors swallowed into .error (sim never dies from hardware failure), pyserial>=3.5 runtime dep
+- [x] Virtual loopback device for no-hardware testing/demo
+  - VirtualSink records .received, listed as "Virtual device (demo)" in the port picker
+- [x] Companion Arduino sketch (4 heads × R/A/G LEDs) parsing the protocol
+  - hardware/arduino/traffic_light.ino: pins 2–13, 9600 baud, non-blocking reader, classroom-readable
+- [x] Hardware panel: port picker, connect/disconnect, status + error states — sim keeps running on failure
+  - Port combo + refresh, live error reflection (500ms), registers/removes sink on the StateBridge
+- [x] Tests (mocked serial) + docs (README wiring guide)
+  - 22 new tests (119 total); README "Hardware (optional)" parts + wiring section
+
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — v1.1.0 SHIPPED: status dashboard + bundled fonts; release CI green, Win+Linux binaries attached (github.com/qtrcipher/traffic-light/releases/tag/v1.1.0) — next: pillar 3 (hardware controller) or classroom feedback
+- 2026-08-15 — Phase 8 done: pillar 3 hardware controller — line protocol (N:G;S:G;E:R;W:R), SerialSink (pyserial, fail-safe), VirtualSink demo, Arduino sketch (pins 2–13), hardware panel w/ live error states; 119 tests green local+Docker — next: v1.2.0 tag or real-hardware test

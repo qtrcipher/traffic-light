@@ -89,6 +89,57 @@ https://github.com/qtrcipher/traffic-light</translation>
       <source>Dashboard</source>
       <translation>لوحة الحالة</translation>
     </message>
+    <message>
+      <source>Hardware…</source>
+      <translation>العتاد…</translation>
+    </message>
+  </context>
+  <context>
+    <name>HardwarePanel</name>
+    <message>
+      <source>Hardware</source>
+      <translation>العتاد</translation>
+    </message>
+    <message>
+      <source>Port</source>
+      <translation>المنفذ</translation>
+    </message>
+    <message>
+      <source>Serial port</source>
+      <translation>المنفذ التسلسلي</translation>
+    </message>
+    <message>
+      <source>Refresh</source>
+      <translation>تحديث</translation>
+    </message>
+    <message>
+      <source>Connect</source>
+      <translation>اتصال</translation>
+    </message>
+    <message>
+      <source>Disconnect</source>
+      <translation>قطع الاتصال</translation>
+    </message>
+    <message>
+      <source>Virtual device (demo)</source>
+      <translation>جهاز افتراضي (تجريبي)</translation>
+    </message>
+    <message>
+      <source>Disconnected</source>
+      <translation>غير متصل</translation>
+    </message>
+    <message>
+      <source>Connected to {port}</source>
+      <translation>متصل بـ {port}</translation>
+    </message>
+    <message>
+      <source>Error: {message}</source>
+      <translation>خطأ: {message}</translation>
+    </message>
+    <message>
+      <source>Hardware status</source>
+      <translation>حالة العتاد</translation>
+    </message>
   </context>
   <context>
     <name>DashboardWindow</name>

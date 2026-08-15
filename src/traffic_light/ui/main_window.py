@@ -28,6 +28,7 @@ from .bridge import StateBridge
 from .canvas import IntersectionCanvas
 from .dashboard import DashboardWindow
 from .guide import GuideDialog
+from .hardware_panel import HardwarePanel
 from .panels import ControlPanel
 from .plan_editor import PlanEditorDialog
 
@@ -46,6 +47,7 @@ class MainWindow(QMainWindow):
         self._presenting = False
         self.bridge = StateBridge()
         self.dashboard: DashboardWindow | None = None
+        self._hardware_panel: HardwarePanel | None = None
 
         self.canvas = IntersectionCanvas(self.engine, prefs.theme())
         self.panel = ControlPanel()
@@ -68,6 +70,10 @@ class MainWindow(QMainWindow):
         self.dashboard_action.triggered.connect(self._toggle_dashboard)
         toolbar.addAction(self.dashboard_action)
         view_menu.addAction(self.dashboard_action)
+        hardware_action = QAction(self.tr("Hardware…"), self)
+        hardware_action.triggered.connect(self._open_hardware)
+        toolbar.addAction(hardware_action)
+        view_menu.addAction(hardware_action)
         view_menu.addSeparator()
         for name in prefs.THEMES:
             action = QAction(prefs.THEMES[name], self, checkable=True)
@@ -148,6 +154,19 @@ class MainWindow(QMainWindow):
 
     def _dashboard_closed(self) -> None:
         self.dashboard_action.setChecked(False)
+
+    def _open_hardware(self) -> None:
+        if self._hardware_panel is None:
+            panel = HardwarePanel(
+                self.bridge, lambda: self.engine.state.heads, self
+            )
+            panel.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            panel.destroyed.connect(
+                lambda: setattr(self, "_hardware_panel", None)
+            )
+            self._hardware_panel = panel
+        self._hardware_panel.show()
+        self._hardware_panel.raise_()
 
     def _set_playing(self, playing: bool) -> None:
         self.playing = playing

@@ -57,6 +57,19 @@ analytics, no network calls. Plans you save stay on your machine as JSON files;
 settings (language, theme) are stored locally via QSettings.
 Full policy (Arabic/English): https://qtrcipher.github.io/traffic-light-privacy/
 
+## Hardware (optional)
+
+Drive a real miniature traffic light that mirrors the simulator. Parts:
+an Arduino Uno/Nano (or compatible), 12 LEDs (4× red/amber/green) with
+~220 Ω resistors, and a breadboard. Wiring: each LED anode via its resistor to
+a pin, cathode to GND — pin map in the comments of
+[src/traffic_light/hardware/arduino/traffic_light.ino](src/traffic_light/hardware/arduino/traffic_light.ino)
+(N = pins 2–4, S = 5–7, E = 8–10, W = 11–13).
+
+Upload the sketch with the Arduino IDE, then in the app open **Hardware…**,
+pick the board's serial port, and press **Connect**. No board? Choose the
+**Virtual device (demo)** entry to try the flow without hardware.
+
 ## Fonts
 
 The UI bundles [Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/)
