@@ -18,3 +18,6 @@ dist/
 .DS_Store
 .idea/
 .vscode/
+
+# Privacy-pages repo clone (its own git repo — house rule 2026-08-12)
+traffic-light-privacy/

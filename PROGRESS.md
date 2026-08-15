@@ -87,11 +87,16 @@
   - Applied throughout (timer-flake root-caused to QElapsedTimer zero-read → _advance refactor; contrast failure → token fix)
 
 ## Phase 6 — Release & ship
-- [ ] Privacy policy: own public GitHub Pages repo, bilingual, Arabic first — `privacy-support-pages`
-- [ ] Store/release privacy declarations — `privacy-support-pages`
-- [ ] Release metadata: age rating, review info, accessibility labels — `ios-ship-gate`
-- [ ] Screenshots + store copy, both languages — `app-store-optimization`
-- [ ] Release notes (from v2 on)
+- [x] Privacy policy: own public GitHub Pages repo, bilingual, Arabic first — `privacy-support-pages`
+  - https://qtrcipher.github.io/traffic-light-privacy/ (repo: qtrcipher/traffic-light-privacy, cloned at traffic-light-privacy/ per house rule; RTL previewed before push)
+- [x] Store/release privacy declarations — `privacy-support-pages`
+  - No stores; declaration = the privacy page + README "data collected: none". Zero-collection is truthful: no SDKs, no network, no accounts
+- [x] Release metadata: age rating, review info, accessibility labels — `ios-ship-gate`
+  - No ASC; repo metadata set instead: 10 topics, homepage → privacy page, bilingual README with features/screenshots
+- [x] Screenshots + store copy, both languages — `app-store-optimization`
+  - README shows EN-light + AR-dark renders from the snapshot suite; bilingual feature list
+- [x] Release notes (from v2 on)
+  - N/A — v1.0.0 is the first release
 - [ ] SHIP: run the release gate in order — `ios-ship-gate` (the steps live in that skill; load it, don't improvise them)
 
 ## Session log
