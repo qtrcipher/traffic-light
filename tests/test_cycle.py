@@ -20,18 +20,29 @@ def test_empty_plan_is_invalid():
 
 def test_both_axes_green_is_rejected():
     plan = TimingPlan(name="x", phases=[Phase(S.GREEN, S.GREEN, 10.0)])
-    assert any("both" in e for e in plan.validate())
+    issues = plan.validate()
+    assert any(i.code == "both_axes_green" and i.phase == 1 for i in issues)
 
 
 def test_amber_shorter_than_minimum_is_rejected():
     plan = TimingPlan(name="x", phases=[Phase(S.AMBER, S.RED, 0.5)])
-    assert any("amber" in e for e in plan.validate())
+    assert any(i.code == "amber_too_short" for i in plan.validate())
+
+
+def test_nonpositive_duration_is_rejected():
+    plan = TimingPlan(name="x", phases=[Phase(S.GREEN, S.RED, 0.0)])
+    assert any(i.code == "nonpositive_duration" for i in plan.validate())
 
 
 def test_short_cycle_is_rejected_when_green_present():
     plan = TimingPlan(name="x", phases=[Phase(S.GREEN, S.RED, 2.0)])
     assert plan.cycle_s < MIN_CYCLE_S
-    assert any("Cycle" in e for e in plan.validate())
+    assert any(i.code == "cycle_too_short" for i in plan.validate())
+
+
+def test_issue_str_is_english_fallback():
+    plan = TimingPlan(name="x", phases=[Phase(S.GREEN, S.GREEN, 10.0)])
+    assert any("green" in str(i) for i in plan.validate())
 
 
 def test_night_flash_short_cycle_allowed_without_green():

@@ -18,6 +18,29 @@ MIN_AMBER_S = 1.0
 MIN_CYCLE_S = 5.0
 
 
+@dataclass(frozen=True)
+class ValidationIssue:
+    """One plan problem. ``code`` is stable so the UI can translate it;
+    ``phase`` is the 1-based phase number when the problem is phase-specific.
+    ``str(issue)`` is the English fallback, used in file-load errors."""
+
+    code: str
+    phase: int | None = None
+
+    def __str__(self) -> str:
+        if self.code == "no_phases":
+            return "Plan has no phases."
+        if self.code == "nonpositive_duration":
+            return f"Phase {self.phase}: duration must be positive."
+        if self.code == "amber_too_short":
+            return f"Phase {self.phase}: amber must be at least {MIN_AMBER_S:g}s."
+        if self.code == "both_axes_green":
+            return f"Phase {self.phase}: NS and EW cannot both be green."
+        if self.code == "cycle_too_short":
+            return f"Cycle must be at least {MIN_CYCLE_S:g}s."
+        return self.code
+
+
 @dataclass
 class Phase:
     ns: SignalState
@@ -34,24 +57,25 @@ class TimingPlan:
     def cycle_s(self) -> float:
         return sum(p.duration_s for p in self.phases)
 
-    def validate(self) -> list[str]:
+    def validate(self) -> list[ValidationIssue]:
         """Return a list of problems; empty means the plan is valid."""
-        errors: list[str] = []
+        issues: list[ValidationIssue] = []
         if not self.phases:
-            errors.append("Plan has no phases.")
-            return errors
+            issues.append(ValidationIssue("no_phases"))
+            return issues
         for i, p in enumerate(self.phases):
+            n = i + 1
             if p.duration_s <= 0:
-                errors.append(f"Phase {i + 1}: duration must be positive.")
+                issues.append(ValidationIssue("nonpositive_duration", n))
             if (p.ns is SignalState.AMBER or p.ew is SignalState.AMBER) and p.duration_s < MIN_AMBER_S:
-                errors.append(f"Phase {i + 1}: amber must be at least {MIN_AMBER_S:g}s.")
+                issues.append(ValidationIssue("amber_too_short", n))
             if p.ns is SignalState.GREEN and p.ew is SignalState.GREEN:
-                errors.append(f"Phase {i + 1}: NS and EW cannot both be green.")
+                issues.append(ValidationIssue("both_axes_green", n))
         if self.cycle_s < MIN_CYCLE_S and any(
             SignalState.GREEN in (p.ns, p.ew) for p in self.phases
         ):
-            errors.append(f"Cycle must be at least {MIN_CYCLE_S:g}s.")
-        return errors
+            issues.append(ValidationIssue("cycle_too_short"))
+        return issues
 
     def to_json(self) -> str:
         return json.dumps(
@@ -79,7 +103,7 @@ class TimingPlan:
             raise ValueError(f"Invalid plan file: {exc}") from exc
         errors = plan.validate()
         if errors:
-            raise ValueError("Invalid plan: " + " ".join(errors))
+            raise ValueError("Invalid plan: " + " ".join(str(e) for e in errors))
         return plan
 
     @classmethod

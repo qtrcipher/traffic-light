@@ -12,6 +12,7 @@ THEMES = {"light": "Light", "dark": "Dark"}
 
 KEY_LANGUAGE = "ui/language"
 KEY_THEME = "ui/theme"
+KEY_GUIDE_DISMISSED = "ui/guide_dismissed"
 
 
 def settings() -> QSettings:
@@ -39,3 +40,13 @@ def set_theme(name: str) -> None:
     if name not in THEMES:
         raise ValueError(f"Unknown theme: {name}")
     settings().setValue(KEY_THEME, name)
+
+
+def guide_dismissed() -> bool:
+    """True once the user checked "Don't show again" on the quick guide."""
+    value = settings().value(KEY_GUIDE_DISMISSED, False)
+    return value if isinstance(value, bool) else str(value).lower() == "true"
+
+
+def set_guide_dismissed(dismissed: bool = True) -> None:
+    settings().setValue(KEY_GUIDE_DISMISSED, dismissed)

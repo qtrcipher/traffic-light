@@ -35,12 +35,18 @@
 - [x] Scaffold this file into the repo as `PROGRESS.md` — `ios-ship-gate` (template in its references/)
 
 ## Phase 2 — Features
-- [ ] Core features: <list them> — `frontend-ios` agent · `state-management` · `persistence-patterns`
-- [ ] Deep links / widgets / charts if needed — `deep-linking` · `widgetkit-patterns` · `swift-charts-patterns`
-- [ ] Onboarding + in-app guides
-- [ ] Accessibility — `accessibility-specialist` agent
-- [ ] In-app account deletion (required if accounts exist)
-- [ ] Developer debug menu — DEBUG builds only
+- [x] Core features: simulation engine (deterministic dt-tick, seeded RNG), intersection canvas, control panel (play/pause/speed/presets), plan editor, save/load plan JSON, presentation mode — `frontend-ios` agent · `state-management` · `persistence-patterns`
+  - Engine sub-steps at phase boundaries, set_plan applies at boundary only; TrafficModel queues/clears; QPainter canvas; plan editor with coded validation issues (translatable); F11 presentation, spacebar play/pause; invalid plan file → error + restore default
+- [x] Deep links / widgets / charts if needed — `deep-linking` · `widgetkit-patterns` · `swift-charts-patterns`
+  - Not needed for v1: desktop classroom app, no mobile widgets/deep links; stats overlay deferred
+- [x] Onboarding + in-app guides
+  - Quick-guide dialog (shortcuts, plan sharing) auto-shows until dismissed, Help menu + About
+- [x] Accessibility — `accessibility-specialist` agent
+  - accessibleNames/descriptions incl. live canvas phase description, explicit tab order, focus rings, WCAG AA contrast locked by tests (fixed failing error-color tokens)
+- [x] In-app account deletion (required if accounts exist)
+  - N/A — no accounts, fully local app
+- [x] Developer debug menu — DEBUG builds only
+  - TRAFFIC_LIGHT_DEBUG=1 gates Debug menu: step one phase, spawn car burst
 
 ## Phase 3 — Backend & AI
 - [ ] API security; debug token DEBUG-only — `security-checklist`
@@ -74,4 +80,4 @@
 
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phase 1 done: public repo (github.com/qtrcipher/traffic-light), PySide6 scaffold (core/ui/hardware split), EN/AR language picker + RTL, icon, Docker tests green (13 pytest, Qt offscreen; xvfb-run hangs under compose — dropped) — next: Phase 2 core engine + simulator canvas
+- 2026-08-15 — Phase 2 done: deterministic engine + traffic, QPainter intersection canvas, control panel, plan editor w/ coded validation, save/load JSON, presentation mode, quick-guide onboarding, a11y pass (contrast fix), debug menu; 64 tests green local+Docker — next: Phase 3 (mostly N/A for local app — review) or Phase 5 hardening

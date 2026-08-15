@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QApplication
 
 from .ui import settings as prefs
 from .ui import theme
+from .ui.guide import GuideDialog, should_show_guide
 from .ui.language_dialog import LanguageDialog
 from .ui.main_window import MainWindow
 
@@ -53,12 +54,15 @@ def create_app(argv: list[str]) -> QApplication:
 
 
 def main() -> int:
+    language_known = prefs.language() is not None
     app = create_app(sys.argv)
     icon = resources.files("traffic_light") / "assets" / "icon.svg"
     with resources.as_file(icon) as icon_path:
         app.setWindowIcon(QIcon(str(icon_path)))
     window = MainWindow()
     window.show()
+    if should_show_guide(language_known):
+        GuideDialog(window).exec()
     return app.exec()
 
 

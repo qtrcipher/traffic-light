@@ -13,6 +13,9 @@ SIGNAL_GREEN = "#16A34A"
 
 RADIUS_PX = 16
 
+# Muted car paint colors for the canvas (indexed by core.traffic color_index).
+CAR_COLORS = ("#64748B", "#7D8F69", "#5B7C99", "#B26E7E", "#B4714E", "#8A6E94")
+
 LIGHT = {
     "primary": "#4F46E5",
     "on_primary": "#FFFFFF",
@@ -23,6 +26,8 @@ LIGHT = {
     "border": "#C7D2FE",
     "road": "#9CA3AF",
     "road_line": "#F9FAFB",
+    "housing": "#1F2937",
+    "error": "#B91C1C",
 }
 
 DARK = {
@@ -35,6 +40,8 @@ DARK = {
     "border": "#4338CA",
     "road": "#111827",
     "road_line": "#4B5563",
+    "housing": "#030712",
+    "error": "#F87171",
 }
 
 THEMES = {"light": LIGHT, "dark": DARK}
@@ -60,5 +67,9 @@ def stylesheet(theme: str) -> str:
     QDialog, QComboBox, QLineEdit {{
         border: 1px solid {t['border']};
         border-radius: {RADIUS_PX}px;
+    }}
+    QPushButton:focus, QComboBox:focus, QLineEdit:focus, QDoubleSpinBox:focus,
+    QTableWidget:focus, QSlider:focus, QCheckBox:focus {{
+        border: 2px solid {t['accent']};
     }}
     """
