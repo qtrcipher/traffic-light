@@ -6,6 +6,7 @@ __pycache__/
 venv/
 build/
 dist/
+*.qm  # compiled translations — built by pyside6-lrelease
 
 # Secrets — never commit
 .env

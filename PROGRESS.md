@@ -24,10 +24,14 @@
   - No backend (local desktop app). TimingPlan JSON {name, phases:[{ns, ew, duration_s}]} validated in core/cycle.py; QSettings for language/theme/last plan
 
 ## Phase 1 — Foundation
-- [ ] Public GitHub repo (open source); `.gitignore` covers secrets BEFORE first commit
-- [ ] Project scaffold, dependencies — `xcode-specialist` agent
-- [ ] One-time language picker at first launch (EN/AR), persisted — `i18n-patterns` · `arabic-localization`
-- [ ] App icon + splash — `icon-design-guide` · `art-asset-designer` agent
+- [x] Public GitHub repo (open source); `.gitignore` covers secrets BEFORE first commit
+  - https://github.com/qtrcipher/traffic-light (public, pushed 2026-08-15); .gitignore with secrets block committed first
+- [x] Project scaffold, dependencies — `xcode-specialist` agent
+  - src-layout PySide6 package (pyproject.toml), core/{signal,cycle,presets} implemented + engine/traffic contracts stubbed, ui/{theme,settings,language_dialog,main_window}, hardware/base.py HardwareSink, Dockerfile + compose (xvfb tests), 13 pytest tests
+- [x] One-time language picker at first launch (EN/AR), persisted — `i18n-patterns` · `arabic-localization`
+  - LanguageDialog on first run, QSettings-persisted, RTL layout direction + Qt Linguist .ts catalog (ar), English source strings
+- [x] App icon + splash — `icon-design-guide` · `art-asset-designer` agent
+  - assets/icon.svg + rendered PNGs (scripts/make_icon.py), set as window icon. Splash deliberately skipped: app starts <1s, a splash would only flash
 - [x] Scaffold this file into the repo as `PROGRESS.md` — `ios-ship-gate` (template in its references/)
 
 ## Phase 2 — Features
@@ -70,4 +74,4 @@
 
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — scaffolded PROGRESS.md; Phase 0 complete (scope, market check, UX, design direction, Python+PySide6 architecture, data model; design doc in docs/plans/) — next: Phase 1 repo + project scaffold
+- 2026-08-15 — Phase 1 done: public repo (github.com/qtrcipher/traffic-light), PySide6 scaffold (core/ui/hardware split), EN/AR language picker + RTL, icon, Docker tests green (13 pytest, Qt offscreen; xvfb-run hangs under compose — dropped) — next: Phase 2 core engine + simulator canvas

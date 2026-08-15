@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- App icon: signal head on indigo squircle. Design tokens from ui/theme.py -->
+  <rect width="512" height="512" rx="112" fill="#4F46E5"/>
+  <rect x="176" y="72" width="160" height="368" rx="48" fill="#1E1B4B"/>
+  <circle cx="256" cy="152" r="44" fill="#DC2626"/>
+  <circle cx="256" cy="256" r="44" fill="#F59E0B"/>
+  <circle cx="256" cy="360" r="44" fill="#16A34A"/>
+</svg>

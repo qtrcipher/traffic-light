@@ -1,0 +1,9 @@
+services:
+  test:
+    build: .
+    # CMD from the Dockerfile: QT_QPA_PLATFORM=offscreen pytest -q
+  app:
+    build: .
+    command: bash
+    stdin_open: true
+    tty: true
