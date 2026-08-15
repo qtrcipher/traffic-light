@@ -14,6 +14,13 @@ class SignalState(enum.Enum):
     OFF = "off"
 
 
+class PedestrianState(enum.Enum):
+    """States a pedestrian crossing signal can show."""
+
+    WALK = "walk"
+    DONT_WALK = "dont_walk"
+
+
 class SignalHead:
     """One approach's signal head (e.g. the northbound light)."""
 

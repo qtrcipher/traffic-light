@@ -9,9 +9,18 @@ Contract (fixed so UI and hardware code can target it):
   boundaries so a large dt lands exactly on the boundary, never overshoots.
 - ``engine.state`` — EngineState snapshot: current phase index, elapsed,
   per-head SignalStates for N/S/E/W (the NS axis drives the N and S heads,
-  EW drives E and W), and immutable car snapshots for the canvas.
+  EW drives E and W), pedestrian crossing states, and immutable car snapshots
+  for the canvas.
 - ``engine.set_plan(plan)`` — validates, then applies the TimingPlan at the
   next phase boundary, never mid-phase. Raises ValueError if invalid.
+
+Pedestrian model (classroom-simple, traffic-correct): a crossing is identified
+by the road being crossed ("NS" or "EW"). ``request_pedestrian(axis)`` sets a
+demand flag (no RNG — determinism untouched). Pedestrians may only cross a
+road while that road's traffic is stopped, so at each phase start, pending
+demand for road X is served if — and only if — road X shows RED in the new
+phase: a WALK window of min(PED_WALK_S, phase duration) runs from the phase
+start, then the signal returns to DONT_WALK. WALK never spans phases.
 """
 
 from __future__ import annotations
@@ -20,10 +29,13 @@ import random
 from dataclasses import dataclass
 
 from .cycle import TimingPlan
-from .signal import SignalHead, SignalState
+from .signal import PedestrianState, SignalHead, SignalState
 from .traffic import APPROACHES, CarSnapshot, TrafficModel
 
 _EPS_S = 1e-9  # float tolerance for phase-boundary comparisons
+
+PED_WALK_S = 5.0  # maximum WALK window; shorter phases serve a shorter window
+PED_AXES = ("NS", "EW")  # a pedestrian axis names the ROAD BEING CROSSED
 
 
 @dataclass(frozen=True)
@@ -36,6 +48,8 @@ class EngineState:
     phase_duration_s: float
     sim_time_s: float
     heads: dict[str, SignalState]
+    pedestrians: dict[str, PedestrianState]
+    ped_demand: dict[str, bool]
     cars: tuple[CarSnapshot, ...]
 
 
@@ -54,6 +68,8 @@ class SimulationEngine:
         self._phase_index = 0
         self._elapsed = 0.0
         self._sim_time = 0.0
+        self._ped_demand = {axis: False for axis in PED_AXES}
+        self._ped_walk_remaining = {axis: 0.0 for axis in PED_AXES}
         self._sync_heads()
 
     def tick(self, dt_s: float) -> None:
@@ -69,10 +85,24 @@ class SimulationEngine:
             self._elapsed += step
             self._sim_time += step
             self.traffic.update(step, self._approach_states())
+            for axis in PED_AXES:
+                self._ped_walk_remaining[axis] = max(
+                    0.0, self._ped_walk_remaining[axis] - step
+                )
             remaining -= step
             if self._elapsed >= duration - _EPS_S:
                 self._advance_phase()
         self._sync_heads()
+
+    def request_pedestrian(self, axis: str) -> None:
+        """Register pedestrian demand to cross the given axis's road.
+
+        The demand is served at the start of the next phase where that road
+        is RED (see module docstring). No RNG — determinism is unaffected.
+        """
+        if axis not in PED_AXES:
+            raise ValueError(f"unknown pedestrian axis: {axis!r}")
+        self._ped_demand[axis] = True
 
     def set_plan(self, plan: TimingPlan) -> None:
         """Queue a validated plan; it takes over at the next phase boundary."""
@@ -96,6 +126,15 @@ class SimulationEngine:
             phase_duration_s=phase.duration_s,
             sim_time_s=self._sim_time,
             heads={name: head.state for name, head in self.heads.items()},
+            pedestrians={
+                axis: (
+                    PedestrianState.WALK
+                    if self._ped_walk_remaining[axis] > 0
+                    else PedestrianState.DONT_WALK
+                )
+                for axis in PED_AXES
+            },
+            ped_demand=dict(self._ped_demand),
             cars=self.traffic.snapshot(),
         )
 
@@ -116,6 +155,18 @@ class SimulationEngine:
         else:
             self._phase_index = (self._phase_index + 1) % len(self.plan.phases)
         self._elapsed = 0.0
+        # WALK never spans phases; then serve pending demand that the new
+        # phase can legally accommodate (crossed road must be RED).
+        for axis in PED_AXES:
+            self._ped_walk_remaining[axis] = 0.0
+        phase = self.plan.phases[self._phase_index]
+        for axis in PED_AXES:
+            road_state = phase.ns if axis == "NS" else phase.ew
+            if self._ped_demand[axis] and road_state is SignalState.RED:
+                self._ped_walk_remaining[axis] = min(
+                    PED_WALK_S, phase.duration_s
+                )
+                self._ped_demand[axis] = False
 
     def _sync_heads(self) -> None:
         for name, state in self._approach_states().items():

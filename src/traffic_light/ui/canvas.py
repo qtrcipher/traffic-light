@@ -13,7 +13,7 @@ from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 from ..core.engine import SimulationEngine
-from ..core.signal import SignalState
+from ..core.signal import PedestrianState, SignalState
 from ..core.traffic import CAR_LENGTH_M
 from . import theme
 
@@ -23,6 +23,8 @@ _LANE_OFFSET_M = 1.75
 _CAR_WIDTH_M = 2.0
 _HEAD_MARGIN_M = 1.2  # gap between road edge and signal head
 _HEAD_HOUSING_M = (2.4, 7.2)  # width x length of a 3-lamp housing
+_CROSSWALK_OFFSET_M = 2.5  # band centre this far outside the intersection edge
+_PED_BOX_M = 1.8  # pedestrian signal box size
 
 _SIGNAL_COLORS = {
     SignalState.RED: theme.SIGNAL_RED,
@@ -74,8 +76,10 @@ class IntersectionCanvas(QWidget):
         scale = min(self.width(), self.height()) / (2 * _HALF_SPAN_M)
         cx, cy = self.width() / 2, self.height() / 2
         self._draw_roads(painter, cx, cy, scale)
+        self._draw_crosswalks(painter, cx, cy, scale)
         self._draw_cars(painter, cx, cy, scale)
         self._draw_heads(painter, cx, cy, scale)
+        self._draw_ped_signals(painter, cx, cy, scale)
         painter.end()
 
     def _draw_roads(self, p: QPainter, cx: float, cy: float, scale: float) -> None:
@@ -92,6 +96,72 @@ class IntersectionCanvas(QWidget):
         p.drawLine(cx, cy + half, cx, self.height())
         p.drawLine(0, cy, cx - half, cy)
         p.drawLine(cx + half, cy, self.width(), cy)
+
+    def _draw_crosswalks(self, p: QPainter, cx: float, cy: float, scale: float) -> None:
+        """Zebra stripes across each arm, just outside the stop line."""
+        half = _ROAD_HALF_WIDTH_M
+        band = _CROSSWALK_OFFSET_M  # stripe length along the road axis
+        stripe = 1.6  # stripe width across the road
+        gap = 1.6
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(QColor(self._colors["road_line"]))
+        edges = {
+            "N": (cx, cy - (half + band) * scale, True),
+            "S": (cx, cy + (half + band) * scale, True),
+            "E": (cx + (half + band) * scale, cy, False),
+            "W": (cx - (half + band) * scale, cy, False),
+        }
+        for _, (ax, ay, vertical_arm) in edges.items():
+            # Walk across the road width, painting one stripe per step.
+            start = -half + 0.8
+            while start + stripe <= half - 0.8:
+                if vertical_arm:  # N/S arms: stripes are vertical bars
+                    rect = QRectF(
+                        ax + start * scale,
+                        ay - (band / 2) * scale,
+                        stripe * scale,
+                        band * scale,
+                    )
+                else:  # E/W arms: horizontal bars
+                    rect = QRectF(
+                        ax - (band / 2) * scale,
+                        ay + start * scale,
+                        band * scale,
+                        stripe * scale,
+                    )
+                p.drawRect(rect)
+                start += stripe + gap
+
+    def _draw_ped_signals(self, p: QPainter, cx: float, cy: float, scale: float) -> None:
+        """Small pedestrian boxes at the crosswalk ends (WALK/DONT WALK)."""
+        peds = self._engine.state.pedestrians
+        half = _ROAD_HALF_WIDTH_M
+        box = _PED_BOX_M * scale
+        side = (half + 1.4) * scale
+        # Just beyond the crosswalk band's outer edge, at the end OPPOSITE the
+        # arm's vehicle head (heads own the near corners and would overlap).
+        far = (half + _CROSSWALK_OFFSET_M + _PED_BOX_M) * scale
+        placements = {
+            "NS": [
+                (cx + side, cy - far),  # N-arm crosswalk, east end
+                (cx - side, cy + far),  # S-arm crosswalk, west end
+            ],
+            "EW": [
+                (cx + far, cy + side),  # E-arm crosswalk, south end
+                (cx - far, cy - side),  # W-arm crosswalk, north end
+            ],
+        }
+        for axis, boxes in placements.items():
+            walking = peds[axis] is PedestrianState.WALK
+            for bx, by in boxes:
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QColor(self._colors["housing"]))
+                rect = QRectF(bx - box / 2, by - box / 2, box, box)
+                p.drawRoundedRect(rect, box / 4, box / 4)
+                dot = box * 0.45
+                color = theme.SIGNAL_GREEN if walking else theme.SIGNAL_RED
+                p.setBrush(QColor(color))
+                p.drawEllipse(QRectF(bx - dot / 2, by - dot / 2, dot, dot))
 
     def _draw_cars(self, p: QPainter, cx: float, cy: float, scale: float) -> None:
         edge = _ROAD_HALF_WIDTH_M

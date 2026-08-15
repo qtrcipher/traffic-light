@@ -8,7 +8,7 @@ wires them to the engine. The main window feeds the readout back in via
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QComboBox, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget
 
 from ..core import presets
 from ..core.engine import EngineState
@@ -32,6 +32,7 @@ class ControlPanel(QWidget):
     playToggled = Signal(bool)  # True = now playing
     speedChanged = Signal(float)
     presetChosen = Signal(str)  # key into core.presets.PRESETS
+    pedestrianRequested = Signal(str)  # "NS" or "EW" — the road being crossed
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -78,6 +79,23 @@ class ControlPanel(QWidget):
         preset_caption.setBuddy(self.preset_combo)
         self.preset_combo.activated.connect(self._on_preset_activated)
         layout.addWidget(self.preset_combo)
+
+        # Pedestrian demand buttons: lit while the request waits to be served.
+        ped_row = QHBoxLayout()
+        self.ped_buttons: dict[str, QPushButton] = {}
+        for axis, label, description in (
+            ("NS", "Pedestrian NS", "Request to cross the north–south road."),
+            ("EW", "Pedestrian EW", "Request to cross the east–west road."),
+        ):
+            button = QPushButton(self.tr(label))
+            button.setCheckable(True)
+            button.setAccessibleName(self.tr(description))
+            button.clicked.connect(
+                lambda _=False, a=axis: self.pedestrianRequested.emit(a)
+            )
+            ped_row.addWidget(button)
+            self.ped_buttons[axis] = button
+        layout.addLayout(ped_row)
         layout.addStretch(1)
 
     def update_status(self, state: EngineState) -> None:
@@ -92,6 +110,10 @@ class ControlPanel(QWidget):
                 elapsed=state.phase_elapsed_s, duration=state.phase_duration_s
             )
         )
+        for axis, button in self.ped_buttons.items():
+            pending = state.ped_demand.get(axis, False)
+            if button.isChecked() != pending:
+                button.setChecked(pending)
 
     def _on_play_clicked(self) -> None:
         self.playing = not self.playing

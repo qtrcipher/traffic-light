@@ -29,8 +29,10 @@ from .canvas import IntersectionCanvas
 from .dashboard import DashboardWindow
 from .guide import GuideDialog
 from .hardware_panel import HardwarePanel
+from .lessons import LessonViewer
 from .panels import ControlPanel
 from .plan_editor import PlanEditorDialog
+from .quiz import QuizDialog
 
 TIMER_INTERVAL_MS = 33  # ~30 fps
 
@@ -48,6 +50,9 @@ class MainWindow(QMainWindow):
         self.bridge = StateBridge()
         self.dashboard: DashboardWindow | None = None
         self._hardware_panel: HardwarePanel | None = None
+        self._lessons: LessonViewer | None = None
+        self._quiz: QuizDialog | None = None
+        self._quiz_was_playing = False
 
         self.canvas = IntersectionCanvas(self.engine, prefs.theme())
         self.panel = ControlPanel()
@@ -74,6 +79,14 @@ class MainWindow(QMainWindow):
         hardware_action.triggered.connect(self._open_hardware)
         toolbar.addAction(hardware_action)
         view_menu.addAction(hardware_action)
+        lessons_action = QAction(self.tr("Lessons…"), self)
+        lessons_action.triggered.connect(self._open_lessons)
+        toolbar.addAction(lessons_action)
+        view_menu.addAction(lessons_action)
+        self.quiz_action = QAction(self.tr("Quiz"), self, checkable=True)
+        self.quiz_action.triggered.connect(self._toggle_quiz)
+        toolbar.addAction(self.quiz_action)
+        view_menu.addAction(self.quiz_action)
         view_menu.addSeparator()
         for name in prefs.THEMES:
             action = QAction(prefs.THEMES[name], self, checkable=True)
@@ -93,6 +106,7 @@ class MainWindow(QMainWindow):
         self.panel.playToggled.connect(self._set_playing)
         self.panel.speedChanged.connect(self._set_speed)
         self.panel.presetChosen.connect(self._apply_preset)
+        self.panel.pedestrianRequested.connect(self.engine.request_pedestrian)
 
         # Logical keyboard order: canvas first, then the panel top to bottom.
         QWidget.setTabOrder(self.canvas, self.panel.play_button)
@@ -167,6 +181,33 @@ class MainWindow(QMainWindow):
             self._hardware_panel = panel
         self._hardware_panel.show()
         self._hardware_panel.raise_()
+
+    def _open_lessons(self) -> None:
+        if self._lessons is None:
+            lessons = LessonViewer(self)
+            lessons.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            lessons.destroyed.connect(lambda: setattr(self, "_lessons", None))
+            self._lessons = lessons
+        self._lessons.show()
+        self._lessons.raise_()
+
+    def _toggle_quiz(self, checked: bool) -> None:
+        if checked:
+            # Freeze the sim while the student thinks; resume afterwards.
+            self._quiz_was_playing = self.playing
+            if self.playing:
+                self.panel.play_button.click()
+            self._quiz = QuizDialog(self.engine, self)
+            self._quiz.finished.connect(self._quiz_finished)
+            self._quiz.show()
+        elif self._quiz is not None:
+            self._quiz.close()
+
+    def _quiz_finished(self, _result: int = 0) -> None:
+        self._quiz = None
+        self.quiz_action.setChecked(False)
+        if self._quiz_was_playing and not self.playing:
+            self.panel.play_button.click()
 
     def _set_playing(self, playing: bool) -> None:
         self.playing = playing

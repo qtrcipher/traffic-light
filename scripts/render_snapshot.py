@@ -24,7 +24,10 @@ from PySide6.QtCore import QLocale, QSettings, Qt
 MAIN_SIZE = (1100, 760)
 DASHBOARD_SIZE = (720, 760)
 GUIDE_SIZE = (520, 280)
-PRE_TICKS = 159  # 159 x 0.1 s = 15.9 s of simulated time
+# 220 x 0.1 s = 22.0 s of simulated time: the sim sits in phase 2 (NS amber,
+# EW red) with the pedestrian EW demand (requested at t=0) being served —
+# the EW crosswalks show WALK in the main snapshots.
+PRE_TICKS = 220
 
 
 def main() -> int:
@@ -62,6 +65,7 @@ def main() -> int:
     window = MainWindow()
     window._timer.stop()  # noqa: SLF001 — freeze the sim before any tick fires
     window.resize(*MAIN_SIZE)
+    window.engine.request_pedestrian("EW")  # served at the next EW-red phase
     for _ in range(PRE_TICKS):
         window.engine.tick(0.1)
     state = window.engine.state

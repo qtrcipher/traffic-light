@@ -126,6 +126,16 @@
 - [x] Tests (mocked serial) + docs (README wiring guide)
   - 22 new tests (119 total); README "Hardware (optional)" parts + wiring section
 
+## Phase 9 — Pillar 4: Classroom teaching tool
+- [x] Pedestrian crossings: push-buttons per axis, WALK phase inserted on demand — engine + canvas + panel
+  - Demand served at any phase start where the crossed road is red; WALK = min(5s, phase); zebra crosswalks + 4 ped signal boxes on canvas; hardware protocol unchanged
+- [x] Guided lessons: step-by-step scenario cards (e.g. "make amber too short — what happens?")
+  - 4 lessons as content-data (cycle anatomy, amber minimum, rush-hour vs default, pedestrian demand), LessonViewer dialog
+- [x] Quiz mode: freeze state, "which lights go green next?", answer + explanation
+  - Pure generator derives answers from plan phase order; 5-question rounds, score; pauses/resumes sim
+- [x] Tests + snapshots for all three; AR translations
+  - 25 new tests (144 total); main snapshots now render a live WALK window; 139 AR strings
+
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phase 8 done: pillar 3 hardware controller — line protocol (N:G;S:G;E:R;W:R), SerialSink (pyserial, fail-safe), VirtualSink demo, Arduino sketch (pins 2–13), hardware panel w/ live error states; 119 tests green local+Docker — next: v1.2.0 tag or real-hardware test
+- 2026-08-15 — Phase 9 done: pillar 4 teaching tool — pedestrian crossings (demand-served WALK windows, crosswalks + ped boxes on canvas), 4 guided lesson cards, quiz mode (plan-derived MCQ, 5-q rounds); 144 tests, 139 AR strings — next: v1.2.0 tag (hardware + teaching) or real-Arduino bench test
