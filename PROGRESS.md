@@ -138,4 +138,4 @@
 
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phase 9 done: pillar 4 teaching tool — pedestrian crossings (demand-served WALK windows, crosswalks + ped boxes on canvas), 4 guided lesson cards, quiz mode (plan-derived MCQ, 5-q rounds); 144 tests, 139 AR strings — next: v1.2.0 tag (hardware + teaching) or real-Arduino bench test
+- 2026-08-15 — v1.2.0 SHIPPED: hardware controller + teaching tools (pedestrians, lessons, quiz); release CI green, Win+Linux binaries attached (github.com/qtrcipher/traffic-light/releases/tag/v1.2.0) — next: real-Arduino bench test, classroom feedback, then v2 ideas
