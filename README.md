@@ -17,6 +17,7 @@ Three pillars, built in order: intersection **simulator** (MVP), status **dashbo
 ## Features
 
 - Animated 4-way intersection with queueing cars and a deterministic simulation engine
+- Status dashboard: big glanceable N/S/E/W lamps mirroring the live signals (great for projection)
 - Configurable signal timing plans — edit phases visually, save and share as JSON
 - Built-in presets: Default, Rush hour, Night flash
 - Presentation mode (F11) for classroom projection

@@ -85,6 +85,69 @@ https://github.com/qtrcipher/traffic-light</source>
       <translation>محاكي إشارات مرور مفتوح المصدر للفصول الدراسية.
 https://github.com/qtrcipher/traffic-light</translation>
     </message>
+    <message>
+      <source>Dashboard</source>
+      <translation>لوحة الحالة</translation>
+    </message>
+  </context>
+  <context>
+    <name>DashboardWindow</name>
+    <message>
+      <source>Status dashboard</source>
+      <translation>لوحة الحالة</translation>
+    </message>
+    <message>
+      <source>North</source>
+      <translation>شمال</translation>
+    </message>
+    <message>
+      <source>South</source>
+      <translation>جنوب</translation>
+    </message>
+    <message>
+      <source>East</source>
+      <translation>شرق</translation>
+    </message>
+    <message>
+      <source>West</source>
+      <translation>غرب</translation>
+    </message>
+    <message>
+      <source>{head} signal: {state}</source>
+      <translation>إشارة {head}: {state}</translation>
+    </message>
+    <message>
+      <source>red</source>
+      <translation>أحمر</translation>
+    </message>
+    <message>
+      <source>amber</source>
+      <translation>أصفر</translation>
+    </message>
+    <message>
+      <source>green</source>
+      <translation>أخضر</translation>
+    </message>
+    <message>
+      <source>off</source>
+      <translation>مطفأ</translation>
+    </message>
+    <message>
+      <source>Phase {n} of {total}</source>
+      <translation>المرحلة {n} من {total}</translation>
+    </message>
+    <message>
+      <source>{elapsed:.1f} s</source>
+      <translation>{elapsed:.1f} ث</translation>
+    </message>
+    <message>
+      <source>Current phase</source>
+      <translation>المرحلة الحالية</translation>
+    </message>
+    <message>
+      <source>Phase elapsed time</source>
+      <translation>الزمن المنقضي للمرحلة</translation>
+    </message>
   </context>
   <context>
     <name>ControlPanel</name>

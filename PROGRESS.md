@@ -100,6 +100,18 @@
 - [x] SHIP: run the release gate in order — `ios-ship-gate` (the steps live in that skill; load it, don't improvise them)
   - Gate adapted for desktop OSS: version bump 1.0.0 · 83-test suite green both platforms · snapshot/QA review AR+EN · audit sweep clean (no TODO/FIXME, debug menu gated, zero telemetry) · frozen bundle launch-verified · tag v1.0.0 · release CI built + attached traffic-light-linux (80MB) and traffic-light-windows.exe (49MB) · published (not draft): https://github.com/qtrcipher/traffic-light/releases/tag/v1.0.0
 
+## Phase 7 — Pillar 2: Status dashboard
+- [x] Dashboard window: large glanceable status lights per head (N/S/E/W), live from the engine — via the `HardwareSink` seam
+  - StateBridge (ui/bridge.py) fans engine snapshots to sinks on change only; DashboardWindow consumes it as a HardwareSink
+- [x] Open from View menu / toolbar; works alongside the simulator
+  - Checkable action, non-modal, lazy-created, replays current state on open
+- [x] Phase + elapsed readout in large classroom-legible type
+  - 36px bold phase/elapsed beneath the 2×2 compass lamp grid
+- [x] Accessible names on all status lights; AR/RTL + both themes
+  - Live names ("North signal: green" / إشارة الشمال: أخضر), RTL-mirrored grid, follows app theme
+- [x] Tests + snapshot coverage (incl. AR dark dashboard)
+  - 14 new tests (97 total): bridge change-only firing, lamps, a11y names, 4 dashboard snapshots (10% budget for 36px labels)
+
 ## Session log
 Format, newest first, one line per session: `YYYY-MM-DD — what changed — next: <task>`
-- 2026-08-15 — Phase 6 done, v1.0.0 SHIPPED: privacy policy live (qtrcipher.github.io/traffic-light-privacy, AR first), bilingual README + screenshots, repo topics, PyInstaller release workflow; binaries for Win+Linux attached to the v1.0.0 GitHub Release — next: pillar 2 (status dashboard) or classroom feedback
+- 2026-08-15 — Phase 7 done: pillar 2 status dashboard (StateBridge on HardwareSink seam, 2×2 big-lamp board, 36px phase/elapsed, live a11y names, AR/RTL + themes); 97 tests incl. 4 dashboard snapshots; Docker image gained fonts-noto-core (container was rendering Arabic as tofu — root-caused via AR dashboard snapshot diffs) — next: pillar 3 (hardware) or v1.1.0 tag

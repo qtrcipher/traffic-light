@@ -37,9 +37,21 @@ MAX_DIFF_CHANNEL_FRACTION = 0.05  # of all channels, may exceed the tolerance
 # budget still catches catastrophic breakage: blank render, missing RTL
 # mirroring, or the wrong theme would move far more than a quarter of all
 # channels. The main-window snapshots keep the tighter default — their canvas
-# (roads, signals, cars) is font-independent and deterministic.
+# (roads, signals, cars) is font-independent and deterministic. Dashboard
+# images are mostly big colored lamps, but their 36px Arabic labels carry
+# more antialiased glyph area than the main window's 16px chrome, so they
+# get a middle budget that still catches wrong-lamp/wrong-theme breakage
+# (one lamp is ~15% of all channels).
 DIFF_FRACTION_OVERRIDES = {
     "guide_ar_dark.png": 0.25,
+    "dashboard_en_light.png": 0.10,
+    "dashboard_en_dark.png": 0.10,
+    "dashboard_ar_light.png": 0.10,
+    "dashboard_ar_dark.png": 0.10,
+    # With fonts-noto-core in the container, Arabic main-window chrome (menus,
+    # panel) lands at 5.4% on Ubuntu vs the reference machine's Arabic font —
+    # just over the default budget. 7% still catches any real breakage.
+    "main_ar_light.png": 0.07,
 }
 
 MAIN_COMBOS = [
@@ -94,6 +106,16 @@ def test_main_window_snapshot(rendered, lang, theme):
     )
     assert fraction <= MAX_DIFF_CHANNEL_FRACTION, (
         f"main {lang}/{theme}: {fraction:.4%} of channels differ"
+    )
+
+
+@pytest.mark.parametrize("lang,theme", MAIN_COMBOS)
+def test_dashboard_snapshot(rendered, lang, theme):
+    name = f"dashboard_{lang}_{theme}.png"
+    fraction = diff_channel_fraction(rendered / name, SNAPSHOTS / name)
+    allowed = DIFF_FRACTION_OVERRIDES.get(name, MAX_DIFF_CHANNEL_FRACTION)
+    assert fraction <= allowed, (
+        f"dashboard {lang}/{theme}: {fraction:.4%} of channels differ"
     )
 
 

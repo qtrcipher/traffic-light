@@ -24,7 +24,9 @@ from ..core import presets
 from ..core.cycle import TimingPlan
 from ..core.engine import SimulationEngine
 from . import settings as prefs
+from .bridge import StateBridge
 from .canvas import IntersectionCanvas
+from .dashboard import DashboardWindow
 from .guide import GuideDialog
 from .panels import ControlPanel
 from .plan_editor import PlanEditorDialog
@@ -42,6 +44,8 @@ class MainWindow(QMainWindow):
         self.playing = True
         self.speed = 1.0
         self._presenting = False
+        self.bridge = StateBridge()
+        self.dashboard: DashboardWindow | None = None
 
         self.canvas = IntersectionCanvas(self.engine, prefs.theme())
         self.panel = ControlPanel()
@@ -60,6 +64,11 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.tr("Presentation mode"), self._enter_presentation)
 
         view_menu = self.menuBar().addMenu(self.tr("&View"))
+        self.dashboard_action = QAction(self.tr("Dashboard"), self, checkable=True)
+        self.dashboard_action.triggered.connect(self._toggle_dashboard)
+        toolbar.addAction(self.dashboard_action)
+        view_menu.addAction(self.dashboard_action)
+        view_menu.addSeparator()
         for name in prefs.THEMES:
             action = QAction(prefs.THEMES[name], self, checkable=True)
             action.setChecked(prefs.theme() == name)
@@ -105,6 +114,8 @@ class MainWindow(QMainWindow):
         prefs.set_theme(name)
         self.window().setStyleSheet(theme.stylesheet(name))
         self.canvas.set_theme(name)
+        if self.dashboard is not None:
+            self.dashboard.set_theme(name)
 
     def _on_tick(self) -> None:
         self._advance(self._clock.restart() / 1000.0)
@@ -113,9 +124,30 @@ class MainWindow(QMainWindow):
         """Advance the engine by a real-time delta (scaled by speed), repaint."""
         if self.playing:
             self.engine.tick(dt_s * self.speed)
+        state = self.engine.state
+        self.bridge.push(state)
         self.canvas.update()
-        self.canvas.update_a11y(self.engine.state)
-        self.panel.update_status(self.engine.state)
+        self.canvas.update_a11y(state)
+        self.panel.update_status(state)
+        if self.dashboard is not None and self.dashboard.isVisible():
+            self.dashboard.update_status(state)
+
+    def _toggle_dashboard(self, checked: bool) -> None:
+        if checked:
+            if self.dashboard is None:
+                self.dashboard = DashboardWindow(prefs.theme(), self)
+                self.dashboard.closed.connect(self._dashboard_closed)
+                self.bridge.add_sink(self.dashboard)
+            self.dashboard.show()
+            self.dashboard.raise_()
+            state = self.engine.state
+            self.dashboard.on_state(state.heads)
+            self.dashboard.update_status(state)
+        elif self.dashboard is not None:
+            self.dashboard.hide()
+
+    def _dashboard_closed(self) -> None:
+        self.dashboard_action.setChecked(False)
 
     def _set_playing(self, playing: bool) -> None:
         self.playing = playing
@@ -203,9 +235,13 @@ class MainWindow(QMainWindow):
 
     def _debug_step_phase(self) -> None:
         self.engine.skip_to_next_phase()
+        state = self.engine.state
+        self.bridge.push(state)
         self.canvas.update()
-        self.canvas.update_a11y(self.engine.state)
-        self.panel.update_status(self.engine.state)
+        self.canvas.update_a11y(state)
+        self.panel.update_status(state)
+        if self.dashboard is not None and self.dashboard.isVisible():
+            self.dashboard.update_status(state)
 
     def _debug_spawn_burst(self) -> None:
         self.engine.traffic.spawn_burst()

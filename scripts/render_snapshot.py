@@ -22,6 +22,7 @@ from pathlib import Path
 from PySide6.QtCore import QLocale, QSettings, Qt
 
 MAIN_SIZE = (1100, 760)
+DASHBOARD_SIZE = (720, 760)
 GUIDE_SIZE = (520, 280)
 PRE_TICKS = 159  # 159 x 0.1 s = 15.9 s of simulated time
 
@@ -71,9 +72,17 @@ def main() -> int:
     args.outdir.mkdir(parents=True, exist_ok=True)
     window.grab().save(str(args.outdir / f"main_{args.lang}_light.png"))
 
+    # Dashboard mirrors the same frozen state; opened through the real toggle.
+    window._toggle_dashboard(True)  # noqa: SLF001
+    window.dashboard.resize(*DASHBOARD_SIZE)
+    window.dashboard.show()
+    app.processEvents()
+    window.dashboard.grab().save(str(args.outdir / f"dashboard_{args.lang}_light.png"))
+
     window.apply_theme("dark")
     app.processEvents()
     window.grab().save(str(args.outdir / f"main_{args.lang}_dark.png"))
+    window.dashboard.grab().save(str(args.outdir / f"dashboard_{args.lang}_dark.png"))
 
     if args.lang == "ar":
         from traffic_light.ui.guide import GuideDialog
