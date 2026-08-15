@@ -31,9 +31,10 @@ jobs:
       - name: Install package
         run: pip install -e '.[dev]'
 
-      # Fail CI on broken Qt Linguist catalogs.
+      # Fail CI on broken Qt Linguist catalogs. Explicit filename: Windows
+      # shells (cmd/PowerShell) don't expand globs.
       - name: Compile translations
-        run: pyside6-lrelease src/traffic_light/i18n/*.ts
+        run: pyside6-lrelease src/traffic_light/i18n/traffic_light_ar.ts
 
       - name: pytest (Linux, offscreen Qt)
         if: runner.os == 'Linux'

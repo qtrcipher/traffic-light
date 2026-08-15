@@ -71,13 +71,19 @@
   - N/A — no ads
 
 ## Phase 5 — Testing (fleet bar)
-- [ ] UI tests written WITH each feature (not after)
-- [ ] Every control × every state: disabled, loading, empty, error
-- [ ] Snapshots: AR/EN × light/dark
-- [ ] Accessibility assertions: labels, traits, order
-- [ ] Arabic copy: 6 plurals, numerals, dates — `arabic-localization`
+- [x] UI tests written WITH each feature (not after)
+  - Every feature landed with tests since Phase 1 (83 total)
+- [x] Every control × every state: disabled, loading, empty, error
+  - tests/test_states.py: plan-editor empty, load-error recovery, presentation toggle, speed extremes, pause/timer
+- [x] Snapshots: AR/EN × light/dark
+  - 5 reference renders (4 combos + AR guide), deterministic fixed-seed, font-tolerant compare, scripts/regen_snapshots.py
+- [x] Accessibility assertions: labels, traits, order
+  - tests/test_a11y.py + contrast tests (WCAG AA locked)
+- [x] Arabic copy: 6 plurals, numerals, dates — `arabic-localization`
+  - No plural strings exist (none needed); timing readouts locked to Latin digits under ar, tested; RTL verified in snapshots
 - [ ] Suite green: Linux/Windows CI, then real install
-- [ ] Bugs found → root-cause first — `systematic-debugging`
+- [x] Bugs found → root-cause first — `systematic-debugging`
+  - Applied throughout (timer-flake root-caused to QElapsedTimer zero-read → _advance refactor; contrast failure → token fix)
 
 ## Phase 6 — Release & ship
 - [ ] Privacy policy: own public GitHub Pages repo, bilingual, Arabic first — `privacy-support-pages`

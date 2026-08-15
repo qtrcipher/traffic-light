@@ -15,7 +15,8 @@ COPY src ./src
 RUN pip install --no-cache-dir '.[dev]'
 
 # Compile Qt Linguist catalogs (.ts -> .qm) with PySide6's bundled lrelease
-RUN pyside6-lrelease src/traffic_light/i18n/*.ts
+# (explicit filename, not a glob — mirrors CI, where Windows shells don't glob)
+RUN pyside6-lrelease src/traffic_light/i18n/traffic_light_ar.ts
 
 COPY tests ./tests
 # Qt's offscreen platform runs the UI tests headless — no X server needed.
