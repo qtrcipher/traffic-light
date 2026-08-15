@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QLocale, QTimer, QTranslator, Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QFont, QFontDatabase, QIcon
 from PySide6.QtWidgets import QApplication
 
 # Absolute imports (not `from .ui import ...`): PyInstaller runs this file as
@@ -20,6 +20,17 @@ from traffic_light.ui.language_dialog import LanguageDialog
 from traffic_light.ui.main_window import MainWindow
 
 APP_NAME = "Traffic Light"
+
+# Bundled fonts (SIL OFL, see assets/fonts/*-OFL.txt). Atkinson covers Latin,
+# Plex Sans Arabic covers Arabic; the families list makes Plex the explicit
+# fallback so Arabic renders identically on every OS.
+_FONT_FILES = (
+    "atkinson-AtkinsonHyperlegible-Regular.ttf",
+    "atkinson-AtkinsonHyperlegible-Bold.ttf",
+    "plex-IBMPlexSansArabic-Regular.ttf",
+    "plex-IBMPlexSansArabic-Bold.ttf",
+)
+_FONT_FAMILIES = ("Atkinson Hyperlegible", "IBM Plex Sans Arabic")
 
 
 def _resource(*parts: str) -> Path:
@@ -48,9 +59,31 @@ def _load_translator(app: QApplication, language: str) -> QTranslator | None:
     return translator  # keep a reference alive
 
 
+def install_fonts(app: QApplication) -> None:
+    """Register the bundled fonts and make them the application default.
+
+    Uses an explicit families list (Latin first, Arabic fallback) instead of
+    relying on Qt's system fallback, which picks a different Arabic font per
+    OS — that was the source of cross-platform snapshot drift.
+    """
+    loaded: set[str] = set()
+    for name in _FONT_FILES:
+        font_id = QFontDatabase.addApplicationFont(
+            str(_resource("assets", "fonts", name))
+        )
+        if font_id >= 0:
+            loaded.update(QFontDatabase.applicationFontFamilies(font_id))
+    families = [f for f in _FONT_FAMILIES if f in loaded]
+    if families:
+        font = QFont()
+        font.setFamilies(families)
+        app.setFont(font)
+
+
 def create_app(argv: list[str]) -> QApplication:
     app = QApplication(argv)
     app.setApplicationName(APP_NAME)
+    install_fonts(app)
 
     language = prefs.language()
     if language is None:

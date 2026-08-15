@@ -57,6 +57,14 @@ analytics, no network calls. Plans you save stay on your machine as JSON files;
 settings (language, theme) are stored locally via QSettings.
 Full policy (Arabic/English): https://qtrcipher.github.io/traffic-light-privacy/
 
+## Fonts
+
+The UI bundles [Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/)
+(Latin, © 2020 Braille Institute of America) and
+[IBM Plex Sans Arabic](https://www.ibm.com/plex/) (© 2017 IBM Corp.) so text
+renders identically on every OS. Both are licensed under the SIL Open Font
+License 1.1 — see `src/traffic_light/assets/fonts/*-OFL.txt`.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

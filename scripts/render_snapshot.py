@@ -47,6 +47,8 @@ def main() -> int:
     from traffic_light.ui import settings as prefs
     from traffic_light.ui import theme
 
+    app_module.install_fonts(app)  # same bundled fonts as the real app
+
     prefs.set_language(args.lang)
     prefs.set_theme("light")
     QLocale.setDefault(QLocale(args.lang))

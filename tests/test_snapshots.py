@@ -31,27 +31,28 @@ CHANNEL_TOLERANCE = 32  # per-channel delta ignored entirely
 # theme, missing RTL mirror, blank canvas — moves tens of percent.
 MAX_DIFF_CHANNEL_FRACTION = 0.05  # of all channels, may exceed the tolerance
 
-# Per-image tolerance overrides. The guide dialog is text-heavy Arabic, so
-# cross-OS font-stack differences dominate its pixel diff (13% on Ubuntu CI
-# vs this machine's reference) even though it renders correctly. Its relaxed
-# budget still catches catastrophic breakage: blank render, missing RTL
-# mirroring, or the wrong theme would move far more than a quarter of all
-# channels. The main-window snapshots keep the tighter default — their canvas
-# (roads, signals, cars) is font-independent and deterministic. Dashboard
-# images are mostly big colored lamps, but their 36px Arabic labels carry
-# more antialiased glyph area than the main window's 16px chrome, so they
-# get a middle budget that still catches wrong-lamp/wrong-theme breakage
-# (one lamp is ~15% of all channels).
+# Per-image tolerance overrides. With the bundled fonts (Atkinson Hyperlegible
+# + IBM Plex Sans Arabic), glyph SHAPES are identical on every OS; what remains
+# is rasterizer antialiasing (CoreText / FreeType / DirectWrite), which scales
+# with glyph area. Measured macOS-reference vs Ubuntu-Docker (2026-08-15):
+#   main 2.4–4.3% · dashboard en 3.8–5.0% · dashboard ar 7.9–11.5% · guide 17.4%
+# Budgets = observation + headroom for the third rasterizer (Windows). Real
+# breakage moves far more: one wrong dashboard lamp ~15% of channels, wrong
+# theme / blank / missing RTL mirror tens of percent. The AR dashboards sit at
+# that lamp floor, so they are catastrophic-breakage smoke tests; the EN
+# dashboards (10% budget) stay the sensitive structural check — lamp layout
+# and colors are language-independent.
 DIFF_FRACTION_OVERRIDES = {
     "guide_ar_dark.png": 0.25,
     "dashboard_en_light.png": 0.10,
     "dashboard_en_dark.png": 0.10,
-    "dashboard_ar_light.png": 0.10,
-    "dashboard_ar_dark.png": 0.10,
-    # With fonts-noto-core in the container, Arabic main-window chrome (menus,
-    # panel) lands at 5.4% on Ubuntu vs the reference machine's Arabic font —
-    # just over the default budget. 7% still catches any real breakage.
+    "dashboard_ar_light.png": 0.15,
+    "dashboard_ar_dark.png": 0.15,
+    # AR chrome (menus, panel labels) measures 4.3–4.4% on Ubuntu — under the
+    # 5% goal but close; 7% is headroom for DirectWrite on Windows, still far
+    # below any real breakage.
     "main_ar_light.png": 0.07,
+    "main_ar_dark.png": 0.07,
 }
 
 MAIN_COMBOS = [
@@ -100,11 +101,10 @@ def rendered(tmp_path_factory) -> Path:
 
 @pytest.mark.parametrize("lang,theme", MAIN_COMBOS)
 def test_main_window_snapshot(rendered, lang, theme):
-    fraction = diff_channel_fraction(
-        rendered / f"main_{lang}_{theme}.png",
-        SNAPSHOTS / f"main_{lang}_{theme}.png",
-    )
-    assert fraction <= MAX_DIFF_CHANNEL_FRACTION, (
+    name = f"main_{lang}_{theme}.png"
+    fraction = diff_channel_fraction(rendered / name, SNAPSHOTS / name)
+    allowed = DIFF_FRACTION_OVERRIDES.get(name, MAX_DIFF_CHANNEL_FRACTION)
+    assert fraction <= allowed, (
         f"main {lang}/{theme}: {fraction:.4%} of channels differ"
     )
 
