@@ -99,6 +99,11 @@ class SimulationEngine:
             cars=self.traffic.snapshot(),
         )
 
+    @property
+    def pending_plan(self) -> TimingPlan | None:
+        """A validated plan queued by set_plan, not yet applied."""
+        return self._pending
+
     def _approach_states(self) -> dict[str, SignalState]:
         phase = self.plan.phases[self._phase_index]
         return {"N": phase.ns, "S": phase.ns, "E": phase.ew, "W": phase.ew}

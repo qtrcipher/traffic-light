@@ -1,5 +1,7 @@
 # Traffic Light
 
+[![test](https://github.com/qtrcipher/traffic-light/actions/workflows/test.yml/badge.svg)](https://github.com/qtrcipher/traffic-light/actions/workflows/test.yml)
+
 Open-source traffic light intersection simulator for classrooms — Windows & Linux.
 
 Three pillars, built in order: intersection **simulator** (MVP), status **dashboard**,
@@ -23,6 +25,12 @@ traffic-light          # run the app (or: python -m traffic_light.app)
 docker compose run --rm --build test    # headless pytest (Qt offscreen platform)
 docker compose run --rm app             # shell in the dev container
 ```
+
+## Privacy
+
+Data collected: **none**. The app runs fully offline — no accounts, no
+analytics, no network calls. Plans you save stay on your machine as JSON files;
+settings (language, theme) are stored locally via QSettings.
 
 ## License
 

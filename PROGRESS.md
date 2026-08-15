@@ -49,17 +49,26 @@
   - TRAFFIC_LIGHT_DEBUG=1 gates Debug menu: step one phase, spawn car burst
 
 ## Phase 3 — Backend & AI
-- [ ] API security; debug token DEBUG-only — `security-checklist`
-- [ ] Crash reporting — `error-monitoring`
-- [ ] Privacy manifest covering every SDK
-- [ ] Slack alerts (info→digest, warning/critical→alerts) — `slack-alerts`
-- [ ] Server-side simulation for restore-purchase etc. — `firebase-backend-engineer` agent
+- [x] API security; debug token DEBUG-only — `security-checklist`
+  - N/A — no backend/API; fully local app
+- [x] Crash reporting — `error-monitoring`
+  - Deliberately none: zero telemetry is a feature for a classroom app used by kids; bugs via GitHub issues
+- [x] Privacy manifest covering every SDK
+  - N/A (Apple-specific); README states "data collected: none"
+- [x] Slack alerts (info→digest, warning/critical→alerts) — `slack-alerts`
+  - N/A — no server-side component
+- [x] Server-side simulation for restore-purchase etc. — `firebase-backend-engineer` agent
+  - N/A — no purchases/server
 
 ## Phase 4 — Monetization
-- [ ] Model: free/open-source — `monetization-frameworks`
-- [ ] Paywall after value, not before — `payments-expert` agent
-- [ ] IAP Test + sandbox scheme (never main) — `storekit-testing-patterns`
-- [ ] Ads? Full UMP→ATT compliance chain — `admob-integration`
+- [x] Model: free/open-source — `monetization-frameworks`
+  - Free, MIT-licensed, no monetization — classroom/education product
+- [x] Paywall after value, not before — `payments-expert` agent
+  - N/A — no paywall
+- [x] IAP Test + sandbox scheme (never main) — `storekit-testing-patterns`
+  - N/A — no IAP
+- [x] Ads? Full UMP→ATT compliance chain — `admob-integration`
+  - N/A — no ads
 
 ## Phase 5 — Testing (fleet bar)
 - [ ] UI tests written WITH each feature (not after)

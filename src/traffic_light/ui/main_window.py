@@ -107,7 +107,10 @@ class MainWindow(QMainWindow):
         self.canvas.set_theme(name)
 
     def _on_tick(self) -> None:
-        dt_s = self._clock.restart() / 1000.0
+        self._advance(self._clock.restart() / 1000.0)
+
+    def _advance(self, dt_s: float) -> None:
+        """Advance the engine by a real-time delta (scaled by speed), repaint."""
         if self.playing:
             self.engine.tick(dt_s * self.speed)
         self.canvas.update()
@@ -143,8 +146,11 @@ class MainWindow(QMainWindow):
             "",
             self.tr("Traffic light plans (*.json)"),
         )
-        if not path:
-            return
+        if path:
+            self._load_plan_from(path)
+
+    def _load_plan_from(self, path: str) -> None:
+        """Load a plan file. On failure, offer to restore the default plan."""
         try:
             plan = TimingPlan.load(Path(path))
         except (OSError, ValueError) as exc:

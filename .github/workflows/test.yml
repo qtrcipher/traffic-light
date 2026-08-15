@@ -1,0 +1,46 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Same Qt runtime libs as the Dockerfile (headless Qt needs them).
+      - name: Install Qt runtime libs (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libegl1 libxkbcommon0 libdbus-1-3 libfontconfig1 libglib2.0-0
+
+      - name: Install package
+        run: pip install -e '.[dev]'
+
+      # Fail CI on broken Qt Linguist catalogs.
+      - name: Compile translations
+        run: pyside6-lrelease src/traffic_light/i18n/*.ts
+
+      - name: pytest (Linux, offscreen Qt)
+        if: runner.os == 'Linux'
+        run: pytest -q
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      - name: pytest (Windows)
+        if: runner.os == 'Windows'
+        run: pytest -q
