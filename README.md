@@ -5,8 +5,9 @@
 Open-source traffic light intersection simulator for classrooms — Windows & Linux.
 محاكي تقاطعات إشارات مرور مفتوح المصدر للفصول الدراسية — Windows وLinux.
 
-Three pillars, built in order: intersection **simulator** (MVP), status **dashboard**,
-**hardware controller** (drive a real light over serial/USB).
+Four pillars: intersection **simulator**, status **dashboard**, **hardware controller**
+(drive a real light over serial/USB), and classroom **teaching tools**
+(pedestrian crossings, guided lessons, quiz mode).
 
 ## Screenshots
 
@@ -24,7 +25,8 @@ Three pillars, built in order: intersection **simulator** (MVP), status **dashbo
 - English & العربية (full RTL), light and dark themes
 - Free, MIT-licensed, and collects **no data whatsoever**
 
-Status: v1.0.0 candidate — simulator complete; dashboard and hardware pillars planned.
+Status: **v1.2.0** — all four pillars shipped: simulator, status dashboard,
+hardware controller, and classroom teaching tools.
 Roadmap and session log in [PROGRESS.md](PROGRESS.md); validated design in
 [docs/plans/2026-08-15-traffic-light-design.md](docs/plans/2026-08-15-traffic-light-design.md).
 
